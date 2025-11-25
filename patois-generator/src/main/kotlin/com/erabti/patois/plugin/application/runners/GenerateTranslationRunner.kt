@@ -28,17 +28,20 @@ class GenerateTranslationRunner(
             LocaleTranslation(locale, file.name, nodes)
         }
 
-        val baseLocale = config.baseLocale ?: localeTranslations.first().locale
+        val baseLocale = config.baseLocale?.let(AppLocale::fromLanguageTag) ?: localeTranslations.first().locale
+        val baseTranslation = localeTranslations.firstOrNull { it.locale == baseLocale }
+            ?: throw IllegalStateException("Base locale '$baseLocale' not found in the translation files.")
 
-        if (!localeTranslations.any { it.locale == baseLocale }) {
-            throw IllegalStateException("Base locale '$baseLocale' not found. Available: ${localeTranslations.map { it.locale }}")
-        }
 
-        localeTranslations.forEach { (locale, inputFileName, nodes) ->
-            val outputFileName = getLocaleFileName(locale)
-            val fileSpec = kotlinGenerator.generate(outputFileName, nodes)
-            fileSpec.writeTo(config.outputDir)
-        }
+        val baseFileName = config.className
+        val fileSpec = kotlinGenerator.generate(baseFileName, baseTranslation.nodes)
+        fileSpec.writeTo(config.outputDir)
+
+//        localeTranslations.forEach { (locale, inputFileName, nodes) ->
+//            val outputFileName = getLocaleFileName(locale)
+//            val fileSpec = kotlinGenerator.generate(outputFileName, nodes)
+//            fileSpec.writeTo(config.outputDir)
+//        }
 
         println("Generated translations for ${localeTranslations.size} locales: ${localeTranslations.map { it.locale }}")
     }
