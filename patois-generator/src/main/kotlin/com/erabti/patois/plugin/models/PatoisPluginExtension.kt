@@ -9,4 +9,7 @@ abstract class PatoisPluginExtension {
     abstract val inputDir: DirectoryProperty
     abstract val outputDir: DirectoryProperty
 
+    abstract val baseLocale: Property<String>
+
+    abstract val argumentPattern: Property<String>
 }

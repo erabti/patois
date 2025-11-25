@@ -1,16 +1,13 @@
 package com.erabti.patois.plugin
 
+import com.erabti.patois.plugin.application.tasks.GenerateTranslationsTask
+import com.erabti.patois.plugin.models.PatoisConfig
 import com.erabti.patois.plugin.models.PatoisPluginExtension
-import com.erabti.patois.plugin.tasks.GenerateTranslations
+import com.erabti.patois.plugin.utils.Constants
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 class PatoisPlugin : Plugin<Project> {
-    companion object {
-        const val DEFAULT_CLASS_NAME = "AppStrings"
-        const val DEFAULT_INPUT_DIR = "src/main/resources/translations"
-        const val DEFAULT_OUTPUT_DIR = "build/generated/source/patois/main/kotlin"
-    }
 
     override fun apply(project: Project) {
         val extension = project.extensions.create(
@@ -18,7 +15,7 @@ class PatoisPlugin : Plugin<Project> {
         )
         setupDefaults(project, extension)
 
-        val generateTask = project.tasks.register("generateTranslations", GenerateTranslations::class.java) {
+        val generateTask = project.tasks.register("generateTranslations", GenerateTranslationsTask::class.java) {
             it.group = "patois"
             it.description = "Generates translation files"
         }
@@ -30,8 +27,10 @@ class PatoisPlugin : Plugin<Project> {
 
 
     private fun setupDefaults(project: Project, extension: PatoisPluginExtension) {
-        extension.className.convention(DEFAULT_CLASS_NAME)
-        extension.inputDir.convention(project.layout.projectDirectory.dir(DEFAULT_INPUT_DIR))
-        extension.outputDir.convention(project.layout.buildDirectory.dir(DEFAULT_OUTPUT_DIR))
+        extension.className.convention(Constants.DEFAULT_CLASS_NAME)
+        extension.inputDir.convention(project.layout.projectDirectory.dir(Constants.DEFAULT_INPUT_DIR))
+        extension.outputDir.convention(project.layout.buildDirectory.dir(Constants.DEFAULT_OUTPUT_DIR))
+        extension.argumentPattern.convention(PatoisConfig.ArgumentPattern.CURLY_BRACES.name)
+        extension.baseLocale.convention("")
     }
 }

@@ -1,5 +1,7 @@
 package com.erabti.patois.models
 
+import com.erabti.patois.util.toPascalCase
+
 data class AppLocale(
     val languageCode: String,
     val countryCode: String? = null,
@@ -13,7 +15,7 @@ data class AppLocale(
         val ARABIC_EG = AppLocale("ar", "EG")
 
         fun fromLanguageTag(tag: String): AppLocale {
-            val parts = tag.split("-", "_")
+            val parts = tag.split("-", "_").map { it.trim().uppercase() }
             val size = parts.size
 
             return when {
@@ -29,6 +31,9 @@ data class AppLocale(
         toLanguageTag()
     }
 
+    val pascalCaseTag: String by lazy {
+        toLanguageTag().lowercase().split("-").joinToString("") { it.toPascalCase() }
+    }
 
     private fun toLanguageTag(delimiter: String = "-"): String {
         val parts = mutableListOf<String>()

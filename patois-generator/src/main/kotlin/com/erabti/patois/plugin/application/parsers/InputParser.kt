@@ -1,7 +1,7 @@
-package com.erabti.patois.plugin.readers
+package com.erabti.patois.plugin.application.parsers
 
 import com.erabti.patois.plugin.models.TranslationNode
 
-interface InputReader {
+interface InputParser {
     fun read(input: String): List<TranslationNode>
 }

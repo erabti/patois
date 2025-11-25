@@ -9,6 +9,14 @@ dependencies {
     implementation(libs.kotlinpoet)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.kaml)
+    implementation(project(":patois-core"))
+
+    testImplementation(libs.kotest.runner.junit5)
+    testImplementation(libs.kotest.assertions.core)
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 gradlePlugin {
