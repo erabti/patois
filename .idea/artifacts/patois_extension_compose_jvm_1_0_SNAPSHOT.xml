@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="patois-extension-compose-jvm-1.0-SNAPSHOT">
+    <output-path>$PROJECT_DIR$/patois-extension-compose/build/libs</output-path>
+    <root id="archive" name="patois-extension-compose-jvm-1.0-SNAPSHOT.jar">
+      <element id="module-output" name="patois.patois-extension-compose.jvmMain" />
+    </root>
+  </artifact>
+</component>

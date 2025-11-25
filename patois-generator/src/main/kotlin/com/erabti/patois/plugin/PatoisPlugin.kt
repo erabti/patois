@@ -1,0 +1,37 @@
+package com.erabti.patois.plugin
+
+import com.erabti.patois.plugin.models.PatoisPluginExtension
+import com.erabti.patois.plugin.tasks.GenerateTranslations
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+
+class PatoisPlugin : Plugin<Project> {
+    companion object {
+        const val DEFAULT_CLASS_NAME = "AppStrings"
+        const val DEFAULT_INPUT_DIR = "src/main/resources/translations"
+        const val DEFAULT_OUTPUT_DIR = "build/generated/source/patois/main/kotlin"
+    }
+
+    override fun apply(project: Project) {
+        val extension = project.extensions.create(
+            "patois", PatoisPluginExtension::class.java
+        )
+        setupDefaults(project, extension)
+
+        val generateTask = project.tasks.register("generateTranslations", GenerateTranslations::class.java) {
+            it.group = "patois"
+            it.description = "Generates translation files"
+        }
+
+        project.tasks.named("compileKotlin").configure {
+            it.dependsOn(generateTask)
+        }
+    }
+
+
+    private fun setupDefaults(project: Project, extension: PatoisPluginExtension) {
+        extension.className.convention(DEFAULT_CLASS_NAME)
+        extension.inputDir.convention(project.layout.projectDirectory.dir(DEFAULT_INPUT_DIR))
+        extension.outputDir.convention(project.layout.buildDirectory.dir(DEFAULT_OUTPUT_DIR))
+    }
+}
