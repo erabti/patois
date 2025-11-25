@@ -3,6 +3,7 @@ package com.erabti.patois.plugin.application.generators
 import com.erabti.patois.plugin.models.PatoisConfig
 import com.erabti.patois.plugin.models.TranslationNode
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 internal class AbstractSpecStrategy(override val config: PatoisConfig) : SpecBuildingStrategy() {
     override fun buildProperty(node: TranslationNode.LeafNode) = PropertySpec.builder(node.key, String::class).run {
@@ -25,6 +26,13 @@ internal class AbstractSpecStrategy(override val config: PatoisConfig) : SpecBui
 
             build()
         }
+
+    override fun buildListProperty(node: TranslationNode.ListNode): PropertySpec {
+        val listType = List::class.asClassName().parameterizedBy(String::class.asClassName())
+        return PropertySpec.builder(node.key, listType)
+            .addModifiers(KModifier.ABSTRACT)
+            .build()
+    }
 
     override fun configureClass(builder: TypeSpec.Builder, isRoot: Boolean) {
         builder.addModifiers(KModifier.ABSTRACT)

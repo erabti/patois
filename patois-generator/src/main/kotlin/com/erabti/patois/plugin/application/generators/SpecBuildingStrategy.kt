@@ -20,6 +20,8 @@ internal sealed class SpecBuildingStrategy() {
 
     abstract fun buildNestedProperty(key: String, abstractType: ClassName, implType: ClassName): PropertySpec
 
+    abstract fun buildListProperty(node: TranslationNode.ListNode): PropertySpec
+
     open fun buildLocaleProperty(): PropertySpec? = null
 
     abstract fun getNestedClassNames(nestedBaseName: String, parentClassName: ClassName): Pair<ClassName, ClassName?>

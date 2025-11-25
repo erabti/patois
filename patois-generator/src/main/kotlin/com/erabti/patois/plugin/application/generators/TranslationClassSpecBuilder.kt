@@ -61,9 +61,15 @@ internal class TranslationClassSpecBuilder(
     }
 
     private fun TypeSpec.Builder.addListNodeMembers(node: TranslationNode.ListNode) {
-        throw UnsupportedOperationException(
-            "ListNode type is not yet supported for key '${node.key}'. " +
-                    "Please restructure your translations to use MapNode instead."
-        )
+        val hasComplexItems = node.items.any { it !is TranslationNode.LeafNode }
+
+        if (hasComplexItems) {
+            throw UnsupportedOperationException(
+                "ListNode with complex nested items (maps or nested lists) is not yet supported for key '${node.key}'. " +
+                        "Only simple string lists are currently supported."
+            )
+        }
+
+        addProperty(strategy.buildListProperty(node))
     }
 }

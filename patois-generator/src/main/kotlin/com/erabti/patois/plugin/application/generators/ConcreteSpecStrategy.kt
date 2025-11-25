@@ -5,6 +5,7 @@ import com.erabti.patois.plugin.models.PatoisConfig
 import com.erabti.patois.plugin.models.TranslationNode
 import com.erabti.patois.plugin.utils.Constants
 import com.squareup.kotlinpoet.*
+import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
 internal class ConcreteSpecStrategy(
     private val locale: AppLocale,
@@ -57,6 +58,18 @@ internal class ConcreteSpecStrategy(
         val implClassName = ClassName("", nestedBaseName + suffix)
         val extendsClassName = getFullyQualifiedNestedClassName(nestedBaseName)
         return implClassName to extendsClassName
+    }
+
+    override fun buildListProperty(node: TranslationNode.ListNode): PropertySpec {
+        val listType = List::class.asClassName().parameterizedBy(String::class.asClassName())
+        val leafItems = node.items.filterIsInstance<TranslationNode.LeafNode>()
+        val initializerCode = leafItems.joinToString(", ") { "%S" }
+        val values = leafItems.map { it.value }.toTypedArray()
+
+        return PropertySpec.builder(node.key, listType)
+            .addModifiers(KModifier.OVERRIDE)
+            .initializer("listOf($initializerCode)", *values)
+            .build()
     }
 
     override fun buildLocaleProperty(): PropertySpec {
