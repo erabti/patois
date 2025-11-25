@@ -34,7 +34,7 @@ class GenerateTranslationRunner(
 
 
         val baseFileName = config.className
-        val fileSpec = kotlinGenerator.generate(baseFileName, baseTranslation.nodes)
+        val fileSpec = kotlinGenerator.generateTranslationFile(baseFileName, baseTranslation.nodes)
         fileSpec.writeTo(config.outputDir)
 
 //        localeTranslations.forEach { (locale, inputFileName, nodes) ->

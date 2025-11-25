@@ -83,6 +83,7 @@ class GenerateTranslationRunnerTest : FunSpec({
 
                 val config = PatoisConfig(
                     className = "TestStrings",
+                    packageName = "com.test",
                     inputDir = tempDir,
                     outputDir = createTempDir(),
                     baseLocale = "en"
@@ -103,6 +104,7 @@ class GenerateTranslationRunnerTest : FunSpec({
             try {
                 val config = PatoisConfig(
                     className = "TestStrings",
+                    packageName = "com.test",
                     inputDir = tempDir,
                     outputDir = createTempDir(),
                     baseLocale = "en"
@@ -126,6 +128,7 @@ class GenerateTranslationRunnerTest : FunSpec({
 
                 val config = PatoisConfig(
                     className = "TestStrings",
+                    packageName = "com.test",
                     inputDir = tempDir,
                     outputDir = createTempDir(),
                     baseLocale = "en"
@@ -148,6 +151,7 @@ class GenerateTranslationRunnerTest : FunSpec({
 private fun createRunner(): GenerateTranslationRunner {
     val config = PatoisConfig(
         className = "TestStrings",
+        packageName = "com.test",
         inputDir = File("/tmp"),
         outputDir = File("/tmp"),
         baseLocale = "en"
