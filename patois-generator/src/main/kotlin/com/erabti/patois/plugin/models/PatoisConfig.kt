@@ -5,6 +5,7 @@ import java.io.File
 
 data class PatoisConfig(
     val className: String,
+    val packageName: String,
     val inputDir: File,
     val outputDir: File,
     val argumentPattern: ArgumentPattern = ArgumentPattern.CURLY_BRACES,
@@ -28,6 +29,7 @@ data class PatoisConfig(
 fun PatoisPluginExtension.toConfig(): PatoisConfig {
     return PatoisConfig(
         className = className.get(),
+        packageName = packageName.get(),
         inputDir = inputDir.asFile.get(),
         outputDir = outputDir.asFile.get(),
         argumentPattern = PatoisConfig.ArgumentPattern.fromString(argumentPattern.get()),
