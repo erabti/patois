@@ -14,6 +14,13 @@ data class PatoisConfig(
     enum class ArgumentPattern {
         CURLY_BRACES, PRINTF_STYLE;
 
+        internal fun wrapWithPattern(argumentName: String): String {
+            return when (this) {
+                CURLY_BRACES -> "{$argumentName}"
+                PRINTF_STYLE -> "%$argumentName"
+            }
+        }
+
         companion object {
             fun fromString(value: String): ArgumentPattern {
                 return when (value.uppercase()) {

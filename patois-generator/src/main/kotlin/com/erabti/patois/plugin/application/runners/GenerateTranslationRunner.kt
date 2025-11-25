@@ -1,11 +1,15 @@
 package com.erabti.patois.plugin.application.runners
 
 import com.erabti.patois.models.AppLocale
+import com.erabti.patois.plugin.application.generators.AbstractSpecStrategy
+import com.erabti.patois.plugin.application.generators.ConcreteSpecStrategy
 import com.erabti.patois.plugin.application.generators.KotlinGenerator
+import com.erabti.patois.plugin.application.generators.TranslationClassSpecBuilder
 import com.erabti.patois.plugin.application.parsers.InputParser
 import com.erabti.patois.plugin.application.parsers.YamlInputParser
 import com.erabti.patois.plugin.models.PatoisConfig
 import com.erabti.patois.plugin.models.TranslationNode
+import com.squareup.kotlinpoet.ClassName
 import java.io.File
 
 class GenerateTranslationRunner(
@@ -13,8 +17,6 @@ class GenerateTranslationRunner(
     val yamlReader: InputParser = YamlInputParser(),
 ) {
     fun run() {
-        val kotlinGenerator = KotlinGenerator(config)
-
         val yamlFiles = discoverTranslationFiles()
 
         if (yamlFiles.isEmpty()) {
@@ -29,19 +31,30 @@ class GenerateTranslationRunner(
         }
 
         val baseLocale = config.baseLocale?.let(AppLocale::fromLanguageTag) ?: localeTranslations.first().locale
-        val baseTranslation = localeTranslations.firstOrNull { it.locale == baseLocale }
-            ?: throw IllegalStateException("Base locale '$baseLocale' not found in the translation files.")
+        val baseTranslation = localeTranslations.firstOrNull { it.locale == baseLocale } ?: throw IllegalStateException(
+            "Base locale '$baseLocale' not found in the translation files."
+        )
 
+        // Generate abstract base class
+        val abstractStrategy = AbstractSpecStrategy(config)
+        val abstractBuilder = TranslationClassSpecBuilder(abstractStrategy)
+        val abstractGenerator = KotlinGenerator(config, abstractBuilder)
 
         val baseFileName = config.className
-        val fileSpec = kotlinGenerator.generateTranslationFile(baseFileName, baseTranslation.nodes)
-        fileSpec.writeTo(config.outputDir)
+        val baseFileSpec = abstractGenerator.generateTranslationFile(baseFileName, baseTranslation.nodes)
+        baseFileSpec.writeTo(config.outputDir)
 
-//        localeTranslations.forEach { (locale, inputFileName, nodes) ->
-//            val outputFileName = getLocaleFileName(locale)
-//            val fileSpec = kotlinGenerator.generate(outputFileName, nodes)
-//            fileSpec.writeTo(config.outputDir)
-//        }
+        // Generate concrete implementations for each locale
+        val abstractClassName = ClassName(config.packageName, config.className)
+        localeTranslations.forEach { (locale, _, nodes) ->
+            val concreteStrategy = ConcreteSpecStrategy(locale, abstractClassName, config)
+            val concreteBuilder = TranslationClassSpecBuilder(concreteStrategy)
+            val concreteGenerator = KotlinGenerator(config, concreteBuilder)
+
+            val outputFileName = getLocaleFileName(locale)
+            val fileSpec = concreteGenerator.generateTranslationFile(outputFileName, nodes, abstractClassName)
+            fileSpec.writeTo(config.outputDir)
+        }
 
         println("Generated translations for ${localeTranslations.size} locales: ${localeTranslations.map { it.locale }}")
     }
@@ -60,9 +73,8 @@ class GenerateTranslationRunner(
 
 
     private fun extractLocale(fileName: String): AppLocale {
-        val withoutExtensions =
-            fileName.removeSuffix(".yaml").removeSuffix(".yml").removeSuffix(".json").removeSuffix(".i18n")
-
+        val unwantedSuffixes = listOf(".yaml", ".yml", ".json", ".i18n")
+        val withoutExtensions = unwantedSuffixes.fold(fileName) { name, suffix -> name.removeSuffix(suffix) }
         return AppLocale.fromLanguageTag(withoutExtensions)
     }
 
