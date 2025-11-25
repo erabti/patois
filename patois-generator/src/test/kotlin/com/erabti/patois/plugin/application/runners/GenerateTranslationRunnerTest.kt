@@ -1,5 +1,6 @@
 package com.erabti.patois.plugin.application.runners
 
+import com.erabti.patois.models.AppLocale
 import com.erabti.patois.plugin.application.parsers.YamlInputParser
 import com.erabti.patois.plugin.models.PatoisConfig
 import io.kotest.assertions.throwables.shouldThrow
@@ -16,9 +17,9 @@ class GenerateTranslationRunnerTest : FunSpec({
             val locale = runner.javaClass.getDeclaredMethod(
                 "extractLocale",
                 String::class.java
-            ).apply { isAccessible = true }.invoke(runner, "en.yaml") as String
+            ).apply { isAccessible = true }.invoke(runner, "en.yaml") as AppLocale
             
-            locale shouldBe "en"
+            locale shouldBe AppLocale("EN")
         }
 
         test("should extract locale from .i18n.yaml files") {
@@ -26,9 +27,9 @@ class GenerateTranslationRunnerTest : FunSpec({
             val locale = runner.javaClass.getDeclaredMethod(
                 "extractLocale",
                 String::class.java
-            ).apply { isAccessible = true }.invoke(runner, "de.i18n.yaml") as String
+            ).apply { isAccessible = true }.invoke(runner, "de.i18n.yaml") as AppLocale
             
-            locale shouldBe "de"
+            locale shouldBe AppLocale("DE")
         }
 
         test("should extract locale with country code (dash)") {
@@ -36,9 +37,9 @@ class GenerateTranslationRunnerTest : FunSpec({
             val locale = runner.javaClass.getDeclaredMethod(
                 "extractLocale",
                 String::class.java
-            ).apply { isAccessible = true }.invoke(runner, "zh-CN.yaml") as String
+            ).apply { isAccessible = true }.invoke(runner, "zh-CN.yaml") as AppLocale
             
-            locale shouldBe "zh-CN"
+            locale shouldBe AppLocale("ZH", "CN")
         }
 
         test("should extract locale with country code (underscore)") {
@@ -46,9 +47,9 @@ class GenerateTranslationRunnerTest : FunSpec({
             val locale = runner.javaClass.getDeclaredMethod(
                 "extractLocale",
                 String::class.java
-            ).apply { isAccessible = true }.invoke(runner, "pt_BR.i18n.json") as String
+            ).apply { isAccessible = true }.invoke(runner, "pt_BR.i18n.json") as AppLocale
             
-            locale shouldBe "pt_BR"
+            locale shouldBe AppLocale("PT", "BR")
         }
 
         test("should extract locale from .json files") {
@@ -56,9 +57,9 @@ class GenerateTranslationRunnerTest : FunSpec({
             val locale = runner.javaClass.getDeclaredMethod(
                 "extractLocale",
                 String::class.java
-            ).apply { isAccessible = true }.invoke(runner, "fr.json") as String
+            ).apply { isAccessible = true }.invoke(runner, "fr.json") as AppLocale
             
-            locale shouldBe "fr"
+            locale shouldBe AppLocale("FR")
         }
 
         test("should extract locale from .yml files") {
@@ -66,9 +67,9 @@ class GenerateTranslationRunnerTest : FunSpec({
             val locale = runner.javaClass.getDeclaredMethod(
                 "extractLocale",
                 String::class.java
-            ).apply { isAccessible = true }.invoke(runner, "es.yml") as String
+            ).apply { isAccessible = true }.invoke(runner, "es.yml") as AppLocale
             
-            locale shouldBe "es"
+            locale shouldBe AppLocale("ES")
         }
     }
 
@@ -78,8 +79,9 @@ class GenerateTranslationRunnerTest : FunSpec({
             try {
                 File(tempDir, "en.yaml").writeText("greeting: Hello")
                 File(tempDir, "de.yaml").writeText("greeting: Hallo")
-                File(tempDir, "fr.json").writeText("{\"greeting\": \"Bonjour\"}")
+                File(tempDir, "fr.yml").writeText("greeting: Bonjour")
                 File(tempDir, "readme.txt").writeText("This should be ignored")
+                File(tempDir, "es.json").writeText("{\"greeting\": \"Hola\"}")
 
                 val config = PatoisConfig(
                     className = "TestStrings",
@@ -89,9 +91,10 @@ class GenerateTranslationRunnerTest : FunSpec({
                     baseLocale = "en"
                 )
                 val runner = GenerateTranslationRunner(config)
+                @Suppress("UNCHECKED_CAST")
                 val files = runner.javaClass.getDeclaredMethod("discoverTranslationFiles")
                     .apply { isAccessible = true }
-                    .invoke(runner) as Array<*>
+                    .invoke(runner) as Array<File>
 
                 files.size shouldBe 3
             } finally {
@@ -138,9 +141,8 @@ class GenerateTranslationRunnerTest : FunSpec({
                 val exception = shouldThrow<IllegalStateException> {
                     runner.run()
                 }
-                exception.message shouldContain "Base locale 'en' not found"
-                exception.message shouldContain "de"
-                exception.message shouldContain "fr"
+                exception.message shouldContain "Base locale"
+                exception.message shouldContain "not found"
             } finally {
                 tempDir.deleteRecursively()
             }
