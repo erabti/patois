@@ -114,17 +114,9 @@ internal class KotlinGenerator(
                 }.build())
             }.build())
 
-            val companoin = TypeSpec.companionObjectBuilder().apply {
-                /**
-                 * val configsMap = mapOf(
-                 *    AppLocale.EN.config to AppLocale.EN,
-                 *    AppLocale.DE.config to AppLocale.DE,
-                 *    AppLocale.FR.config to AppLocale.FR,
-                 * )
-                 */
+            val companion = TypeSpec.companionObjectBuilder().apply {
                 val configsMapProperty = PropertySpec.builder(
-                    "configsMap",
-                    Map::class.asClassName().parameterizedBy(
+                    "configsMap", Map::class.asClassName().parameterizedBy(
                         LocalizationConfig::class.asTypeName(),
                         enumClassName,
                     )
@@ -146,14 +138,33 @@ internal class KotlinGenerator(
                     })
                 }.build()
 
+                val defaultLocaleProperty = PropertySpec.builder(
+                    "DEFAULT",
+                    enumClassName,
+                ).apply {
+                    addModifiers(KModifier.PUBLIC)
+                    initializer("%N.%N", context.config.enumName, context.baseTranslation.locale.enumCaseTag)
+                }.build()
+
 
                 val resolveFunction = FunSpec.builder("resolve").apply {
                     addModifiers(KModifier.PUBLIC)
-                    addParameter("localeTag", String::class)
                     returns(enumClassName)
-                    /// Should return something like:
-                    // return configsMap.findNearestLocale(localeTag, AppLocale.EN)
+                    addParameter(
+                        ParameterSpec.builder(
+                            "localeTag",
+                            String::class.asClassName().copy(nullable = true),
+                        ).apply {
+                            defaultValue("%L", "null")
+                        }.build()
+                    )
+
+
+
+
                     addCode(buildCodeBlock {
+                        // Check if localeTag is null, then return DEFAULT
+                        addStatement("if (localeTag == null) return DEFAULT")
                         addStatement(
                             "return %N.findNearestLocale(localeTag, %N.%N)",
                             "configsMap",
@@ -164,11 +175,14 @@ internal class KotlinGenerator(
                     addImport(LocalizationConfig::class.java.packageName, "findNearestLocale")
                 }
 
+                /// Function that returns strings for a given localeTag
+                val stringsFunction =
+
                 addFunction(resolveFunction.build())
-                addProperty(configsMapProperty)
+                addProperties(listOf(configsMapProperty, defaultLocaleProperty))
             }
 
-            addType(companoin.build())
+            addType(companion.build())
 
         }.build()
 
