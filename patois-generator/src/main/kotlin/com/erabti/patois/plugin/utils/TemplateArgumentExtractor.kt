@@ -1,6 +1,6 @@
 package com.erabti.patois.plugin.utils
 
-import com.erabti.patois.plugin.models.PatoisConfig.ArgumentPattern
+import com.erabti.patois.models.PatoisConfig.ArgumentPattern
 import com.erabti.patois.plugin.models.TemplateArgument
 
 class TemplateArgumentExtractor(

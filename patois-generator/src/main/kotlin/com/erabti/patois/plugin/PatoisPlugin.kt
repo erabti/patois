@@ -1,7 +1,7 @@
 package com.erabti.patois.plugin
 
+import com.erabti.patois.models.PatoisConfig
 import com.erabti.patois.plugin.application.tasks.GenerateTranslationsTask
-import com.erabti.patois.plugin.models.PatoisConfig
 import com.erabti.patois.plugin.models.PatoisPluginExtension
 import com.erabti.patois.plugin.utils.Constants
 import com.erabti.patois.plugin.utils.PackageDetector
@@ -10,11 +10,11 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.SourceSetContainer
 
 class PatoisPlugin : Plugin<Project> {
-
     override fun apply(project: Project) {
         val extension = project.extensions.create(
             "patois", PatoisPluginExtension::class.java
         )
+
         setupDefaults(project, extension)
 
         project.afterEvaluate {

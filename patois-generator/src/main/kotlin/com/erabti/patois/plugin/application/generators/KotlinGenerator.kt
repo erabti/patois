@@ -4,6 +4,7 @@ import com.erabti.patois.models.AppLocaleEnum
 import com.erabti.patois.models.LocalizationConfig
 import com.erabti.patois.plugin.application.runners.RunnerContext
 import com.erabti.patois.plugin.models.TranslationNode
+import com.erabti.patois.plugin.models.outputDirFile
 import com.erabti.patois.plugin.utils.enumCaseTag
 import com.erabti.patois.plugin.utils.pascalCaseTag
 import com.squareup.kotlinpoet.*
@@ -30,7 +31,7 @@ internal class KotlinGenerator(
             val concreteBuilder = TranslationClassSpecBuilder(concreteFlavor)
             val className = "${config.className}${localization.pascalCaseTag}"
 
-            generateFile(config.outputDir, className) {
+            generateFile(config.outputDirFile, className) {
                 addTranslationClass(
                     className, nodes, abstractClassName, concreteBuilder
                 )
@@ -39,7 +40,7 @@ internal class KotlinGenerator(
     }
 
     internal fun generateBaseFile() {
-        generateFile(context.config.outputDir, baseFileName) {
+        generateFile(context.config.outputDirFile, baseFileName) {
             addBaseTranslationClass()
             addLocalesEnum(context)
         }

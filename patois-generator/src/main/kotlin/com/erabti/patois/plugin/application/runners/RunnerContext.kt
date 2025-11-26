@@ -1,6 +1,6 @@
 package com.erabti.patois.plugin.application.runners
 
-import com.erabti.patois.plugin.models.PatoisConfig
+import com.erabti.patois.models.PatoisConfig
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.asClassName

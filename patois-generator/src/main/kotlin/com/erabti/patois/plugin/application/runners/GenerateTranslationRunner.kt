@@ -1,10 +1,11 @@
 package com.erabti.patois.plugin.application.runners
 
 import com.erabti.patois.models.LocalizationConfig
+import com.erabti.patois.models.PatoisConfig
 import com.erabti.patois.plugin.application.generators.KotlinGenerator
 import com.erabti.patois.plugin.application.parsers.InputParser
 import com.erabti.patois.plugin.application.parsers.YamlInputParser
-import com.erabti.patois.plugin.models.PatoisConfig
+import com.erabti.patois.plugin.models.inputDirFile
 import com.erabti.patois.plugin.utils.pascalCaseTag
 import java.io.File
 
@@ -54,7 +55,7 @@ class GenerateTranslationRunner(
 
 
     private fun discoverTranslationFiles(): Array<File> {
-        return config.inputDir.listFiles { file ->
+        return config.inputDirFile.listFiles { file ->
             file.isFile && file.extension in listOf("yaml", "yml")
         } ?: emptyArray()
     }
