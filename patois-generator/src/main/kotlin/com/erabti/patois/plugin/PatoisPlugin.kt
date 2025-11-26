@@ -44,7 +44,9 @@ class PatoisPlugin : Plugin<Project> {
         val detectedPackage = PackageDetector.detectPackageFromSource(
             project.file("src/main/kotlin")
         ) ?: project.group.toString().ifEmpty { "" }
-        
+
         extension.packageName.convention(detectedPackage)
+
+        extension.enumName.convention(Constants.DEFAULT_ENUM_NAME)
     }
 }

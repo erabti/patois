@@ -10,6 +10,7 @@ data class PatoisConfig(
     val outputDir: File,
     val argumentPattern: ArgumentPattern = ArgumentPattern.CURLY_BRACES,
     val baseLocale: String?,
+    val enumName: String,
 ) {
     enum class ArgumentPattern {
         CURLY_BRACES, PRINTF_STYLE;
@@ -41,5 +42,6 @@ fun PatoisPluginExtension.toConfig(): PatoisConfig {
         outputDir = outputDir.asFile.get(),
         argumentPattern = PatoisConfig.ArgumentPattern.fromString(argumentPattern.get()),
         baseLocale = baseLocale.get().ifBlank { null },
+        enumName = enumName.get(),
     )
 }

@@ -1,18 +1,25 @@
 package com.erabti.patois.plugin.application.generators
 
+import com.erabti.patois.models.BaseAppStrings
 import com.erabti.patois.plugin.models.TranslationNode
 import com.erabti.patois.plugin.utils.Constants
 import com.erabti.patois.util.toPascalCase
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.TypeSpec
+import com.squareup.kotlinpoet.asClassName
 
 internal class TranslationClassSpecBuilder(
-    private val strategy: SpecBuildingStrategy,
+    private val flavor: TranslationClassFlavor,
     private val typeSpec: TypeSpec.Companion = TypeSpec,
 ) {
-    fun build(className: ClassName, nodes: List<TranslationNode>, extendsClass: ClassName? = null): TypeSpec {
-        val superClass = extendsClass ?: Constants.BASE_APP_STRINGS_CLASS_NAME
-        return buildClass(className, nodes, superClass, isRoot = true)
+    fun build(
+        className: ClassName,
+        nodes: List<TranslationNode>,
+        extendsClass: ClassName? = null,
+        builder: TypeSpec.Builder.() -> Unit = { },
+    ): TypeSpec {
+        val superClass = extendsClass ?: BaseAppStrings::class.asClassName()
+        return buildClass(className, nodes, superClass, isRoot = true, builder)
     }
 
     private fun buildClass(
@@ -20,18 +27,21 @@ internal class TranslationClassSpecBuilder(
         nodes: List<TranslationNode>,
         extends: ClassName? = null,
         isRoot: Boolean = false,
+        builder: TypeSpec.Builder.() -> Unit = { },
     ): TypeSpec = typeSpec.classBuilder(className).run {
-        strategy.configureClass(this, isRoot)
+        with(flavor) { configureClass(isRoot) }
 
         if (extends != null) {
             superclass(extends)
         }
 
-        if (isRoot && strategy.shouldAddLocaleProperty) {
-            strategy.buildLocaleProperty()?.let { addProperty(it) }
+        if (isRoot) {
+            flavor.localeProperty()?.let { addProperty(it) }
         }
 
         nodes.forEach { processNode(it, className) }
+
+        builder(this)
 
         return@run build()
     }
@@ -44,19 +54,19 @@ internal class TranslationClassSpecBuilder(
 
     private fun TypeSpec.Builder.addLeafNodeMember(node: TranslationNode.LeafNode) {
         if (node.arguments.isNotEmpty()) {
-            addFunction(strategy.buildFunction(node))
+            addFunction(flavor.leafFunction(node))
         } else {
-            addProperty(strategy.buildProperty(node))
+            addProperty(flavor.leafProperty(node))
         }
     }
 
     private fun TypeSpec.Builder.addMapNodeMembers(node: TranslationNode.MapNode, parentClassName: ClassName) {
         val nestedBaseName = node.key.toPascalCase()
-        val abstractClassName = className(nestedBaseName)
+        val abstractClassName = ClassName("", nestedBaseName)
 
-        val (implClassName, extendsClass) = strategy.getNestedClassNames(nestedBaseName, parentClassName)
+        val (implClassName, extendsClass) = flavor.nestedClassNames(nestedBaseName, parentClassName)
 
-        addProperty(strategy.buildNestedProperty(node.key, abstractClassName, implClassName))
+        addProperty(flavor.nestedProperty(node.key, abstractClassName, implClassName))
         addType(buildClass(implClassName, node.children, extendsClass))
     }
 
@@ -70,6 +80,6 @@ internal class TranslationClassSpecBuilder(
             )
         }
 
-        addProperty(strategy.buildListProperty(node))
+        addProperty(flavor.listProperty(node))
     }
 }

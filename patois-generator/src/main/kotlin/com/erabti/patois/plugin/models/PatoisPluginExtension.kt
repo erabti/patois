@@ -13,4 +13,6 @@ abstract class PatoisPluginExtension {
     abstract val baseLocale: Property<String>
 
     abstract val argumentPattern: Property<String>
+
+    abstract val enumName: Property<String>
 }
