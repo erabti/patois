@@ -12,6 +12,7 @@ fun PatoisPluginExtension.toConfig(): PatoisConfig {
         argumentPattern = PatoisConfig.ArgumentPattern.fromString(argumentPattern.get()),
         baseLocale = baseLocale.get().ifBlank { null },
         enumName = enumName.get(),
+        resolverName = resolverName.get(),
     )
 }
 

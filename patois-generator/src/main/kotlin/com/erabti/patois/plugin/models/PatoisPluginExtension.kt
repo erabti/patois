@@ -15,4 +15,6 @@ abstract class PatoisPluginExtension {
     abstract val argumentPattern: Property<String>
 
     abstract val enumName: Property<String>
+
+    abstract val resolverName: Property<String>
 }

@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":patois-core"))
+    api(project(":patois-core"))
     implementation(libs.ktor.server.core)
 }

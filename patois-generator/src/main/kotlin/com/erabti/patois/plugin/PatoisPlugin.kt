@@ -40,13 +40,11 @@ class PatoisPlugin : Plugin<Project> {
         extension.outputDir.convention(project.layout.buildDirectory.dir(Constants.DEFAULT_OUTPUT_DIR))
         extension.argumentPattern.convention(PatoisConfig.ArgumentPattern.CURLY_BRACES.name)
         extension.baseLocale.convention("")
-
         val detectedPackage = PackageDetector.detectPackageFromSource(
             project.file("src/main/kotlin")
         ) ?: project.group.toString().ifEmpty { "" }
-
         extension.packageName.convention(detectedPackage)
-
         extension.enumName.convention(Constants.DEFAULT_ENUM_NAME)
+        extension.resolverName.convention(Constants.DEFAULT_RESOLVER_NAME)
     }
 }

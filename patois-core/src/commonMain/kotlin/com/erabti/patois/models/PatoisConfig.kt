@@ -8,6 +8,7 @@ data class PatoisConfig(
     val argumentPattern: ArgumentPattern = ArgumentPattern.CURLY_BRACES,
     val baseLocale: String?,
     val enumName: String,
+    val resolverName: String,
 ) {
     enum class ArgumentPattern {
         CURLY_BRACES, PRINTF_STYLE;

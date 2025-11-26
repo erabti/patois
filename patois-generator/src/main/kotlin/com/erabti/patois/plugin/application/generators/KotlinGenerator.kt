@@ -1,6 +1,7 @@
 package com.erabti.patois.plugin.application.generators
 
 import com.erabti.patois.models.AppLocaleEnum
+import com.erabti.patois.models.LocaleResolver
 import com.erabti.patois.models.LocalizationConfig
 import com.erabti.patois.plugin.application.runners.RunnerContext
 import com.erabti.patois.plugin.models.TranslationNode
@@ -42,7 +43,8 @@ internal class KotlinGenerator(
     internal fun generateBaseFile() {
         generateFile(context.config.outputDirFile, baseFileName) {
             addBaseTranslationClass()
-            addLocalesEnum(context)
+            addLocalesEnum()
+            addResolverClassObject()
         }
     }
 
@@ -63,8 +65,97 @@ internal class KotlinGenerator(
         block: FileSpec.Builder.() -> FileSpec.Builder,
     ) = with(this) { block(FileSpec.builder(packageName, fileName)).build().writeTo(directory) }
 
+    private fun FileSpec.Builder.addResolverClassObject(): FileSpec.Builder {
+        val clazz = TypeSpec.objectBuilder(context.config.resolverName).run {
+            val localResolverClassName = LocaleResolver::class.asClassName().parameterizedBy(
+                baseTranslationClassName,
+                enumClassName,
+            )
 
-    private fun FileSpec.Builder.addLocalesEnum(context: RunnerContext): FileSpec.Builder {
+            addSuperinterface(localResolverClassName)
+
+            val defaultLocaleProperty = PropertySpec.builder(
+                "defaultLocale",
+                enumClassName,
+            ).run {
+                addModifiers(KModifier.OVERRIDE)
+                initializer("%N.%N", context.config.enumName, context.baseTranslation.locale.enumCaseTag)
+                build()
+            }
+            addProperty(defaultLocaleProperty)
+
+            val supportedLocalesProperty = PropertySpec.builder(
+                "supportedLocales",
+                List::class.asClassName().parameterizedBy(enumClassName),
+            ).run {
+                addModifiers(KModifier.OVERRIDE)
+                initializer("%N.entries", context.config.enumName)
+                build()
+            }
+            addProperty(supportedLocalesProperty)
+
+            val configsMapProperty = PropertySpec.builder(
+                "configsMap", Map::class.asClassName().parameterizedBy(
+                    LocalizationConfig::class.asTypeName(),
+                    enumClassName,
+                )
+            ).apply {
+                initializer(buildCodeBlock {
+
+                    addStatement("mapOf(")
+                    for (translation in context.translations) {
+                        val locale = translation.locale
+                        addStatement(
+                            "%N.%N.config to %N.%N,",
+                            context.config.enumName,
+                            locale.enumCaseTag,
+                            context.config.enumName,
+                            locale.enumCaseTag,
+                        )
+                    }
+                    addStatement(")")
+                })
+            }.build()
+            addProperty(configsMapProperty)
+
+            val resolveFunction = FunSpec.builder("resolve").apply {
+                addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
+                returns(enumClassName)
+                addParameter(
+                    ParameterSpec.builder(
+                        "tag",
+                        String::class.asClassName().copy(nullable = true),
+                    ).build()
+                )
+
+
+
+
+                addCode(buildCodeBlock {
+                    // Check if localeTag is null, then return DEFAULT
+                    addStatement("if (tag == null) return defaultLocale")
+                    addStatement(
+                        "return %N.findNearestLocale(tag, %N.%N)",
+                        "configsMap",
+                        context.config.enumName,
+                        context.baseTranslation.locale.enumCaseTag,
+                    )
+                })
+                addImport(LocalizationConfig::class.java.packageName, "findNearestLocale")
+            }
+
+            addFunction(resolveFunction.build())
+
+
+
+            build()
+        }
+
+        addType(clazz)
+        return this
+    }
+
+    private fun FileSpec.Builder.addLocalesEnum(): FileSpec.Builder {
         val enum = TypeSpec.enumBuilder(enumClassName).apply {
             addSuperinterface(
                 AppLocaleEnum::class.asClassName().parameterizedBy(baseTranslationClassName)
@@ -115,71 +206,24 @@ internal class KotlinGenerator(
             }.build())
 
             val companion = TypeSpec.companionObjectBuilder().apply {
-                val configsMapProperty = PropertySpec.builder(
-                    "configsMap", Map::class.asClassName().parameterizedBy(
-                        LocalizationConfig::class.asTypeName(),
-                        enumClassName,
-                    )
-                ).apply {
-                    initializer(buildCodeBlock {
-
-                        addStatement("mapOf(")
-                        for (translation in context.translations) {
-                            val locale = translation.locale
-                            addStatement(
-                                "%N.%N.config to %N.%N,",
-                                context.config.enumName,
-                                locale.enumCaseTag,
-                                context.config.enumName,
-                                locale.enumCaseTag,
-                            )
-                        }
-                        addStatement(")")
-                    })
-                }.build()
-
+                // val DEFAULT = resolver.defaultLocale
                 val defaultLocaleProperty = PropertySpec.builder(
                     "DEFAULT",
                     enumClassName,
                 ).apply {
                     addModifiers(KModifier.PUBLIC)
-                    initializer("%N.%N", context.config.enumName, context.baseTranslation.locale.enumCaseTag)
+                    initializer("resolver.defaultLocale")
                 }.build()
 
-
-                val resolveFunction = FunSpec.builder("resolve").apply {
+                val resolverProperty = PropertySpec.builder(
+                    "resolver",
+                    ClassName(context.config.packageName, context.config.resolverName),
+                ).apply {
                     addModifiers(KModifier.PUBLIC)
-                    returns(enumClassName)
-                    addParameter(
-                        ParameterSpec.builder(
-                            "localeTag",
-                            String::class.asClassName().copy(nullable = true),
-                        ).apply {
-                            defaultValue("%L", "null")
-                        }.build()
-                    )
+                    initializer("%N", context.config.resolverName)
+                }.build()
 
-
-
-
-                    addCode(buildCodeBlock {
-                        // Check if localeTag is null, then return DEFAULT
-                        addStatement("if (localeTag == null) return DEFAULT")
-                        addStatement(
-                            "return %N.findNearestLocale(localeTag, %N.%N)",
-                            "configsMap",
-                            context.config.enumName,
-                            context.baseTranslation.locale.enumCaseTag,
-                        )
-                    })
-                    addImport(LocalizationConfig::class.java.packageName, "findNearestLocale")
-                }
-
-                /// Function that returns strings for a given localeTag
-                val stringsFunction =
-
-                addFunction(resolveFunction.build())
-                addProperties(listOf(configsMapProperty, defaultLocaleProperty))
+                addProperties(listOf(resolverProperty, defaultLocaleProperty))
             }
 
             addType(companion.build())

@@ -1,10 +1,6 @@
-package models
+package com.erabti.patois.ktor
 
-class PatoisConfigDSL {
-    companion object {
-        const val DEFAULT_HEADER_NAME = "Accept-Language"
-    }
+import com.erabti.patois.ktor.models.PatoisPluginConfiguration
 
-
-    var headerName: String = DEFAULT_HEADER_NAME
-}
+@Deprecated("Use PatoisPluginConfiguration directly.")
+typealias PatoisConfigDSL = PatoisPluginConfiguration

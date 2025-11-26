@@ -3,6 +3,22 @@ package com.erabti.patois.models
 
 interface AppLocaleEnum<StringsT : BaseAppStrings> {
     fun toStrings(): StringsT
+
+    @Suppress("UNCHECKED_CAST")
+    fun <R> toStrings(): R = toStrings() as R
+}
+
+
+interface LocaleResolver<StringsT : BaseAppStrings, EnumT : AppLocaleEnum<StringsT>> {
+    val defaultLocale: EnumT
+
+    val supportedLocales: List<EnumT>
+
+    fun resolve(tag: String? = null): EnumT
+
+    fun resolveToStrings(tag: String? = null) = resolve(tag).toStrings()
+
+    operator fun invoke(tag: String? = null): EnumT = resolve(tag)
 }
 
 fun <T> Map<LocalizationConfig, T>.findNearestLocale(
