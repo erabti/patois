@@ -20,6 +20,17 @@ allprojects {
 subprojects {
     pluginManager.apply("com.vanniktech.maven.publish.base")
     plugins.withId("com.vanniktech.maven.publish.base") {
+        val signingKey = findProperty("signingKey") as? String
+        val signingPassword = findProperty("signingPassword") as? String
+        
+        if (signingKey.isNullOrBlank()) {
+            logger.warn("⚠️  [${project.name}] 'signingKey' property is MISSING or EMPTY. In-memory signing will NOT be configured.")
+        } else if (signingPassword.isNullOrBlank()) {
+            logger.warn("⚠️  [${project.name}] 'signingKey' found but 'signingPassword' is MISSING or EMPTY.")
+        } else {
+            logger.lifecycle("✅ [${project.name}] Signing configuration: key found (length: ${signingKey.length}), password found (length: ${signingPassword.length}).")
+        }
+
         extensions.configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
             configureBasedOnAppliedPlugins()
             pomFromGradleProperties()
