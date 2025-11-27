@@ -23,7 +23,7 @@ subprojects {
         extensions.configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
             configureBasedOnAppliedPlugins()
             pomFromGradleProperties()
-            publishToMavenCentral(automaticRelease = true)
+            publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
             signAllPublications()
         }
     }
