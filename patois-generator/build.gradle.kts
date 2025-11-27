@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlinJvm)
+    id("maven-publish")
     `java-gradle-plugin`
 }
 
@@ -27,5 +28,11 @@ gradlePlugin {
             displayName = "Patois i18n Code Generator"
             description = "Gradle plugin for generating type-safe Kotlin translations from files"
         }
+    }
+}
+
+publishing {
+    repositories {
+        mavenLocal()
     }
 }
