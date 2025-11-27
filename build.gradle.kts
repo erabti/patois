@@ -1,4 +1,6 @@
+import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
+import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinNativeCompile
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
@@ -45,6 +47,11 @@ subprojects {
                 configure<SigningExtension> {
                     useInMemoryPgpKeys(signingKey, signingPassword)
                 }
+            }
+            
+            // Fix for missing klib file during signing: ensure signing tasks run after native compilation
+            tasks.withType<Sign>().configureEach {
+                mustRunAfter(tasks.withType<AbstractKotlinNativeCompile>())
             }
         }
     }
