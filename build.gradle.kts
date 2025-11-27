@@ -51,7 +51,7 @@ subprojects {
             
             // Fix for missing klib file during signing: ensure signing tasks run after native compilation
             tasks.withType<Sign>().configureEach {
-                mustRunAfter(tasks.withType<AbstractKotlinNativeCompile>())
+                mustRunAfter(tasks.withType<AbstractKotlinNativeCompile<*, *>>())
             }
         }
     }
