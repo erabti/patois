@@ -1,3 +1,4 @@
+import org.gradle.api.publish.tasks.GenerateModuleMetadata
 import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinNativeCompile
@@ -49,9 +50,13 @@ subprojects {
                 }
             }
             
-            // Fix for missing klib file during signing: ensure signing tasks run after native compilation
+            // Fix for missing klib file during signing and metadata generation: ensure these tasks run after native compilation
+            val nativeCompileTasks = tasks.withType<AbstractKotlinNativeCompile<*, *>>()
             tasks.withType<Sign>().configureEach {
-                mustRunAfter(tasks.withType<AbstractKotlinNativeCompile<*, *>>())
+                mustRunAfter(nativeCompileTasks)
+            }
+            tasks.withType<GenerateModuleMetadata>().configureEach {
+                mustRunAfter(nativeCompileTasks)
             }
         }
     }
