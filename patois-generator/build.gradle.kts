@@ -2,8 +2,6 @@ import org.gradle.api.tasks.bundling.Jar
 
 plugins {
     alias(libs.plugins.kotlinJvm)
-    id("signing")
-    id("maven-publish")
     `java-gradle-plugin`
 }
 
@@ -38,11 +36,7 @@ gradlePlugin {
     }
 }
 
-publishing {
-    repositories {
-        mavenLocal()
-    }
-}
+
 
 tasks.register<Jar>("javadocJar") {
     archiveClassifier.set("javadoc")
