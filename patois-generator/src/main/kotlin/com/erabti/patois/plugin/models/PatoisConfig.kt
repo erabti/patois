@@ -13,6 +13,7 @@ fun PatoisPluginExtension.toConfig(): PatoisConfig {
         baseLocale = baseLocale.get().ifBlank { null },
         enumName = enumName.get(),
         resolverName = resolverName.get(),
+        hasKtorExtension = hasKtorExtension.get(),
     )
 }
 

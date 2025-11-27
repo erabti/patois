@@ -6,6 +6,11 @@ interface AppLocaleEnum<StringsT : BaseAppStrings> {
 
     @Suppress("UNCHECKED_CAST")
     fun <R> toStrings(): R = toStrings() as R
+
+    val config: LocalizationConfig
+
+    val tag: String
+        get() = config.tag
 }
 
 
@@ -91,11 +96,11 @@ class LocalizationConfig(
         }
     }
 
-    val languageTag: String by lazy {
-        toLanguageTag()
+    val tag: String by lazy {
+        toTag()
     }
 
-    fun toLanguageTag(delimiter: String = "-"): String {
+    fun toTag(delimiter: String = "-"): String {
         val parts = mutableListOf<String>()
         parts.add(languageCode)
         countryCode?.let { parts.add(it) }

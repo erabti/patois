@@ -5,6 +5,6 @@ import com.erabti.patois.util.toPascalCase
 
 
 internal val LocalizationConfig.pascalCaseTag
-    get() = toLanguageTag().lowercase().split("-").joinToString("") { it.toPascalCase() }
+    get() = toTag().lowercase().split("-").joinToString("") { it.toPascalCase() }
 
-internal val LocalizationConfig.enumCaseTag get() = toLanguageTag("_").uppercase()
+internal val LocalizationConfig.enumCaseTag get() = toTag("_").uppercase()

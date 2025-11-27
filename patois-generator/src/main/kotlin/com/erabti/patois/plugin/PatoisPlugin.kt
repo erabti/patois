@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.erabti.patois.plugin
 
 import com.erabti.patois.models.PatoisConfig
@@ -7,6 +9,7 @@ import com.erabti.patois.plugin.utils.Constants
 import com.erabti.patois.plugin.utils.PackageDetector
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.tasks.SourceSetContainer
 
 class PatoisPlugin : Plugin<Project> {
@@ -19,8 +22,11 @@ class PatoisPlugin : Plugin<Project> {
 
         project.afterEvaluate {
             val outputDir = extension.outputDir.asFile.get()
-            project.extensions.getByType(SourceSetContainer::class.java)
-                .getByName("main").java.srcDir(outputDir)
+            project.extensions.getByType(SourceSetContainer::class.java).getByName("main").java.srcDir(outputDir)
+
+            val hasKtorExtension = hasPatoisKtorExtension(project)
+            extension.hasKtorExtension.set(hasKtorExtension)
+            project.extensions.extraProperties.set("patoisHasKtorExtension", hasKtorExtension)
         }
 
         val generateTask = project.tasks.register("generateTranslations", GenerateTranslationsTask::class.java) {
@@ -42,9 +48,22 @@ class PatoisPlugin : Plugin<Project> {
         extension.baseLocale.convention("")
         val detectedPackage = PackageDetector.detectPackageFromSource(
             project.file("src/main/kotlin")
-        ) ?: project.group.toString().ifEmpty { "" }
+        ) ?: project.group.toString()
+
         extension.packageName.convention(detectedPackage)
         extension.enumName.convention(Constants.DEFAULT_ENUM_NAME)
         extension.resolverName.convention(Constants.DEFAULT_RESOLVER_NAME)
+        extension.hasKtorExtension.convention(false)
+    }
+
+    private fun hasPatoisKtorExtension(project: Project): Boolean {
+        return project.configurations.asSequence().any { configuration ->
+            configuration.dependencies.any { dependency ->
+                when (dependency) {
+                    is ProjectDependency -> dependency.name == "patois-extension-ktor"
+                    else -> dependency.group == "com.erabti.patois" && dependency.name == "patois-extension-ktor"
+                }
+            }
+        }
     }
 }

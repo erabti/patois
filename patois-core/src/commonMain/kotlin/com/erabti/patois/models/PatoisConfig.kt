@@ -9,6 +9,7 @@ data class PatoisConfig(
     val baseLocale: String?,
     val enumName: String,
     val resolverName: String,
+    val hasKtorExtension: Boolean = false,
 ) {
     enum class ArgumentPattern {
         CURLY_BRACES, PRINTF_STYLE;

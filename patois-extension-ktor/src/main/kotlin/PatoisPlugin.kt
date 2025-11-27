@@ -6,6 +6,7 @@ import com.erabti.patois.ktor.models.Resolver
 import com.erabti.patois.models.BaseAppStrings
 import com.erabti.patois.models.LocaleResolver
 import io.ktor.server.application.*
+import io.ktor.server.routing.*
 import io.ktor.util.*
 
 fun getResolverAttributeKey(resolver: GenericLocaleResolver) =
@@ -26,6 +27,7 @@ fun Application.installPatoisPlugin(
     }
 }
 
+
 inline fun <reified StringsT : BaseAppStrings> ApplicationCall.strings(resolver: LocaleResolver<StringsT, *>): StringsT {
     val attribute = getResolverAttributeKey(resolver)
     val resolver =
@@ -33,5 +35,10 @@ inline fun <reified StringsT : BaseAppStrings> ApplicationCall.strings(resolver:
 
     return resolver.resolve<StringsT>(this)
 }
+
+inline fun <reified StringsT : BaseAppStrings> RoutingContext.strings(resolver: LocaleResolver<StringsT, *>): StringsT {
+    return call.strings<StringsT>(resolver)
+}
+
 
 internal val PatoisPlugin = createApplicationPlugin(name = "Patois") {}

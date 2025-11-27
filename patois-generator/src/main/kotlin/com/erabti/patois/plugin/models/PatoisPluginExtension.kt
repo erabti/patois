@@ -17,4 +17,6 @@ abstract class PatoisPluginExtension {
     abstract val enumName: Property<String>
 
     abstract val resolverName: Property<String>
+
+    abstract val hasKtorExtension: Property<Boolean>
 }

@@ -45,7 +45,43 @@ internal class KotlinGenerator(
             addBaseTranslationClass()
             addLocalesEnum()
             addResolverClassObject()
+            addKtorStringsExtension()
+            addKtorStringsExtension(ClassName("io.ktor.server.routing", "RoutingContext"))
         }
+    }
+
+    /** Add this global level property extension to the file
+     * val RoutingCall.strings get() = strings<AppStrings>(AppLocale.resolver)
+     */
+    private fun FileSpec.Builder.addKtorStringsExtension(
+        extensionBaseClassName: ClassName = ClassName("io.ktor.server.application", "ApplicationCall"),
+    ): FileSpec.Builder {
+        val stringsFunctionName = "strings"
+
+        val extensionProperty = PropertySpec.builder("strings", baseTranslationClassName).apply {
+            receiver(extensionBaseClassName)
+            addModifiers(KModifier.PUBLIC)
+
+            getter(FunSpec.getterBuilder().apply {
+                addModifiers(KModifier.INLINE)
+                addCode(
+                    CodeBlock.builder().apply {
+                        addStatement(
+                            "return %N<%T>(%T.resolver)",
+                            stringsFunctionName,
+                            baseTranslationClassName,
+                            enumClassName,
+                        )
+                    }.build()
+                )
+            }.build())
+        }.build()
+
+        addProperty(extensionProperty)
+        addImport("com.erabti.patois.ktor", stringsFunctionName)
+        addImport(extensionBaseClassName.packageName, extensionBaseClassName.simpleName)
+
+        return this
     }
 
 
@@ -184,7 +220,7 @@ internal class KotlinGenerator(
             }.build())
 
             addProperty(PropertySpec.builder("config", LocalizationConfig::class).apply {
-                addModifiers(KModifier.PUBLIC)
+                addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
                 getter(FunSpec.getterBuilder().apply {
                     val whenSpec = CodeBlock.builder()
                     whenSpec.beginControlFlow("return when(this)")
