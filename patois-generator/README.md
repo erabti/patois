@@ -8,7 +8,7 @@ The plugin is structured as follows:
 
 ```
 patois-generator/
-├── src/main/kotlin/com/erabti/patois/plugin/
+├── src/main/kotlin/io/github/erabti/patois/plugin/
 │   ├── PatoisPlugin.kt              # Main plugin entry point
 │   ├── PatoisExtension.kt           # DSL configuration
 │   ├── GenerateTranslationsTask.kt  # Gradle task for code generation
@@ -46,7 +46,7 @@ Users can configure the plugin in their `build.gradle.kts`:
 
 ```kotlin
 plugins {
-    id("com.erabti.patois") version "1.0.0"
+    id("io.github.erabti.patois") version "1.0.0"
 }
 
 patois {

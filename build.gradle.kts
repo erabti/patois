@@ -6,7 +6,7 @@ plugins {
 }
 
 allprojects {
-    group = "com.erabti.patois"
+    group = "io.github.erabti.patois"
     version = "1.0-SNAPSHOT"
 
     repositories {

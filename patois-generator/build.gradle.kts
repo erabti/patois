@@ -22,8 +22,8 @@ tasks.withType<Test> {
 gradlePlugin {
     plugins {
         create("patoisPlugin") {
-            id = "com.erabti.patois"
-            implementationClass = "com.erabti.patois.plugin.PatoisPlugin"
+            id = "io.github.erabti.patois"
+            implementationClass = "io.github.erabti.patois.plugin.PatoisPlugin"
             displayName = "Patois i18n Code Generator"
             description = "Gradle plugin for generating type-safe Kotlin translations from files"
         }
