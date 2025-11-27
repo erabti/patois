@@ -18,6 +18,7 @@ allprojects {
 }
 
 subprojects {
+    pluginManager.apply("com.vanniktech.maven.publish.base")
     plugins.withId("com.vanniktech.maven.publish.base") {
         extensions.configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
             configureBasedOnAppliedPlugins()
