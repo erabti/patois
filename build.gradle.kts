@@ -3,6 +3,12 @@ import org.gradle.plugins.signing.Sign
 import org.gradle.plugins.signing.SigningExtension
 import org.jetbrains.kotlin.gradle.tasks.AbstractKotlinNativeCompile
 
+private val publishableModules = setOf(
+    "patois-core",
+    "patois-generator",
+    "patois-extension-ktor",
+)
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.kotlinJvm) apply false
@@ -23,17 +29,22 @@ allprojects {
 }
 
 subprojects {
+    if (name !in publishableModules) {
+        logger.lifecycle("Skipping Maven Central publication setup for $name (module not in publishableModules).")
+        return@subprojects
+    }
+
     pluginManager.apply("com.vanniktech.maven.publish.base")
     plugins.withId("com.vanniktech.maven.publish.base") {
         val signingKey = findProperty("signingKey") as? String
         val signingPassword = findProperty("signingPassword") as? String
         
         if (signingKey.isNullOrBlank()) {
-            logger.warn("⚠️  [${project.name}] 'signingKey' property is MISSING or EMPTY. In-memory signing will NOT be configured.")
+            logger.warn("[${project.name}] 'signingKey' property is MISSING or EMPTY. In-memory signing will NOT be configured.")
         } else if (signingPassword.isNullOrBlank()) {
-            logger.warn("⚠️  [${project.name}] 'signingKey' found but 'signingPassword' is MISSING or EMPTY.")
+            logger.warn("[${project.name}] 'signingKey' found but 'signingPassword' is MISSING or EMPTY.")
         } else {
-            logger.lifecycle("✅ [${project.name}] Signing configuration: key found (length: ${signingKey.length}), password found (length: ${signingPassword.length}).")
+            logger.lifecycle("[${project.name}] Signing configuration: key found (length: ${signingKey.length}), password found (length: ${signingPassword.length}).")
         }
 
         extensions.configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
