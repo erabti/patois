@@ -1,3 +1,5 @@
+import org.gradle.plugins.signing.SigningExtension
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
     alias(libs.plugins.kotlinJvm) apply false
@@ -29,6 +31,9 @@ subprojects {
             logger.warn("⚠️  [${project.name}] 'signingKey' found but 'signingPassword' is MISSING or EMPTY.")
         } else {
             logger.lifecycle("✅ [${project.name}] Signing configuration: key found (length: ${signingKey.length}), password found (length: ${signingPassword.length}).")
+            configure<SigningExtension> {
+                useInMemoryPgpKeys(signingKey, signingPassword)
+            }
         }
 
         extensions.configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
