@@ -1,7 +1,6 @@
-import org.gradle.api.tasks.bundling.Jar
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
+    alias(libs.plugins.dokka)
 }
 
 kotlin {
@@ -24,8 +23,8 @@ kotlin {
     }
 }
 
-
-
 tasks.register<Jar>("javadocJar") {
+    dependsOn(tasks.named("dokkaHtml"))
     archiveClassifier.set("javadoc")
+    from(tasks.named("dokkaHtml"))
 }

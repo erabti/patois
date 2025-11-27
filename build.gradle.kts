@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.kotlinJvm) apply false
     alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.compose) apply false
+    alias(libs.plugins.dokka) apply false
     id("com.vanniktech.maven.publish.base") version "0.28.0"
 }
 
@@ -34,6 +35,8 @@ subprojects {
         return@subprojects
     }
 
+    // Dokka is needed so javadoc JARs are generated for Central
+    pluginManager.apply("org.jetbrains.dokka")
     pluginManager.apply("com.vanniktech.maven.publish.base")
     plugins.withId("com.vanniktech.maven.publish.base") {
         val signingKey = findProperty("signingKey") as? String

@@ -7,6 +7,7 @@ kotlinpoet = "1.14.2"
 kotlinx-serialization = "1.6.0"
 kaml = "0.55.0"
 kotest = "5.9.1"
+dokka = "1.9.20"
 
 [libraries]
 # Kotlin
@@ -34,3 +35,4 @@ kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

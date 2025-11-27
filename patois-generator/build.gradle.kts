@@ -1,8 +1,7 @@
-import org.gradle.api.tasks.bundling.Jar
-
 plugins {
     alias(libs.plugins.kotlinJvm)
     `java-gradle-plugin`
+    alias(libs.plugins.dokka)
 }
 
 dependencies {
@@ -21,8 +20,12 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-java {
-    withSourcesJar()
+java { withSourcesJar() }
+
+tasks.register<Jar>("javadocJar") {
+    dependsOn(tasks.named("dokkaHtml"))
+    archiveClassifier.set("javadoc")
+    from(tasks.named("dokkaHtml"))
 }
 
 gradlePlugin {
@@ -34,10 +37,4 @@ gradlePlugin {
             description = "Gradle plugin for generating type-safe Kotlin translations from files"
         }
     }
-}
-
-
-
-tasks.register<Jar>("javadocJar") {
-    archiveClassifier.set("javadoc")
 }
