@@ -31,9 +31,6 @@ subprojects {
             logger.warn("⚠️  [${project.name}] 'signingKey' found but 'signingPassword' is MISSING or EMPTY.")
         } else {
             logger.lifecycle("✅ [${project.name}] Signing configuration: key found (length: ${signingKey.length}), password found (length: ${signingPassword.length}).")
-            configure<SigningExtension> {
-                useInMemoryPgpKeys(signingKey, signingPassword)
-            }
         }
 
         extensions.configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
@@ -41,6 +38,14 @@ subprojects {
             pomFromGradleProperties()
             publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
             signAllPublications()
+        }
+
+        plugins.withId("signing") {
+            if (!signingKey.isNullOrBlank() && !signingPassword.isNullOrBlank()) {
+                configure<SigningExtension> {
+                    useInMemoryPgpKeys(signingKey, signingPassword)
+                }
+            }
         }
     }
 }
