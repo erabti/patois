@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
+    id("maven-publish")
 }
 
 kotlin {
@@ -19,5 +20,11 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+    }
+}
+
+publishing {
+    repositories {
+        mavenLocal()
     }
 }
