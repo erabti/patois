@@ -28,3 +28,9 @@ tasks.register<Jar>("javadocJar") {
     archiveClassifier.set("javadoc")
     from(tasks.named("dokkaHtml"))
 }
+
+afterEvaluate {
+    publishing.publications.withType<MavenPublication>().configureEach {
+        artifact(tasks.named("javadocJar"))
+    }
+}
