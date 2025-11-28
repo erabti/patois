@@ -12,6 +12,25 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.tasks.SourceSetContainer
 
+/**
+ * Gradle plugin for generating type-safe Kotlin translation classes from YAML/JSON files.
+ *
+ * Apply this plugin to your project and configure it using the `patois` extension:
+ *
+ * ```kotlin
+ * plugins {
+ *     id("io.github.erabti.patois")
+ * }
+ *
+ * patois {
+ *     className.set("AppStrings")
+ *     packageName.set("com.example.i18n")
+ *     inputDir.set(file("src/main/resources/i18n"))
+ * }
+ * ```
+ *
+ * The plugin registers a `generateTranslations` task that runs before `compileKotlin`.
+ */
 class PatoisPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.extensions.create(

@@ -13,6 +13,7 @@ import java.io.File
 class GenerateTranslationRunner(
     val config: PatoisConfig,
     val yamlReader: InputParser = YamlInputParser(),
+    private val logger: (String) -> Unit = ::println,
 ) {
 
     fun run() {
@@ -24,7 +25,11 @@ class GenerateTranslationRunner(
 
         val translations = yamlFiles.map { file ->
             val locale = extractLocale(file.name)
-            val content = file.readText()
+            val content = try {
+                file.readText()
+            } catch (e: Exception) {
+                throw IllegalStateException("Failed to read translation file: ${file.absolutePath}", e)
+            }
             val nodes = yamlReader.read(content)
             LocaleTranslation(locale, file.name, nodes)
         }
@@ -42,7 +47,7 @@ class GenerateTranslationRunner(
         kotlinGen.generateBaseFile()
         kotlinGen.generateConcreteFiles()
 
-        println("Generated translations for ${translations.size} locales: ${translations.map { it.locale.pascalCaseTag }}")
+        logger("Generated translations for ${translations.size} locales: ${translations.map { it.locale.pascalCaseTag }}")
     }
 
     private fun getBaseTranslation(translations: List<LocaleTranslation>): LocaleTranslation {

@@ -8,6 +8,7 @@ kotlinx-serialization = "1.6.0"
 kaml = "0.55.0"
 kotest = "5.9.1"
 dokka = "1.9.20"
+mavenPublish = "0.28.0"
 
 [libraries]
 # Kotlin
@@ -36,3 +37,4 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 compose = { id = "org.jetbrains.compose", version.ref = "compose" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
+mavenPublish = { id = "com.vanniktech.maven.publish.base", version.ref = "mavenPublish" }

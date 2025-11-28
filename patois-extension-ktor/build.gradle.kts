@@ -1,7 +1,6 @@
-import org.gradle.api.tasks.bundling.Jar
-
 plugins {
     alias(libs.plugins.kotlinJvm)
+    alias(libs.plugins.dokka)
 }
 
 dependencies {
@@ -13,8 +12,14 @@ java {
     withSourcesJar()
 }
 
-
-
 tasks.register<Jar>("javadocJar") {
+    dependsOn(tasks.named("dokkaJavadoc"))
     archiveClassifier.set("javadoc")
+    from(tasks.named("dokkaJavadoc"))
+}
+
+afterEvaluate {
+    publishing.publications.withType<MavenPublication>().configureEach {
+        artifact(tasks.named("javadocJar"))
+    }
 }

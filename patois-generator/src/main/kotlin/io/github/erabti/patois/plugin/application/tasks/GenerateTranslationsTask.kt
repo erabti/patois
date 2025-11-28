@@ -13,7 +13,10 @@ abstract class GenerateTranslationsTask : DefaultTask() {
         val extension = project.extensions.findByType(PatoisPluginExtension::class.java)!!
         val config = extension.toConfig()
 
-        val runner = GenerateTranslationRunner(config)
+        val runner = GenerateTranslationRunner(
+            config = config,
+            logger = { message -> logger.lifecycle(message) }
+        )
         runner.run()
     }
 }
