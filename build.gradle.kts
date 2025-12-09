@@ -20,7 +20,7 @@ plugins {
 
 allprojects {
     group = "io.github.erabti.patois"
-    version = "0.1.0"
+    version = "0.1.1"
 
     repositories {
         mavenCentral()
@@ -41,7 +41,7 @@ subprojects {
     plugins.withId("com.vanniktech.maven.publish.base") {
         val signingKey = findProperty("signingKey") as? String
         val signingPassword = findProperty("signingPassword") as? String
-        
+
         if (signingKey.isNullOrBlank()) {
             logger.warn("[${project.name}] 'signingKey' property is MISSING or EMPTY. In-memory signing will NOT be configured.")
         } else if (signingPassword.isNullOrBlank()) {
@@ -50,11 +50,13 @@ subprojects {
             logger.lifecycle("[${project.name}] Signing configuration: key found (length: ${signingKey.length}), password found (length: ${signingPassword.length}).")
         }
 
-        extensions.configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
-            configureBasedOnAppliedPlugins()
-            pomFromGradleProperties()
-            publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
-            signAllPublications()
+        afterEvaluate {
+            extensions.configure<com.vanniktech.maven.publish.MavenPublishBaseExtension> {
+                configureBasedOnAppliedPlugins()
+                pomFromGradleProperties()
+                publishToMavenCentral(com.vanniktech.maven.publish.SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
+                signAllPublications()
+            }
         }
 
         plugins.withId("signing") {
