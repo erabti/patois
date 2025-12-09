@@ -22,15 +22,3 @@ kotlin {
         }
     }
 }
-
-tasks.register<Jar>("javadocJar") {
-    dependsOn(tasks.named("dokkaHtml"))
-    archiveClassifier.set("javadoc")
-    from(tasks.named("dokkaHtml"))
-}
-
-afterEvaluate {
-    publishing.publications.withType<MavenPublication>().configureEach {
-        artifact(tasks.named("javadocJar"))
-    }
-}
