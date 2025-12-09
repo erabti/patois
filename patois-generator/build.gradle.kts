@@ -20,14 +20,6 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
-java { withSourcesJar() }
-
-tasks.register<Jar>("javadocJar") {
-    dependsOn(tasks.named("dokkaJavadoc"))
-    archiveClassifier.set("javadoc")
-    from(tasks.named("dokkaJavadoc"))
-}
-
 gradlePlugin {
     plugins {
         create("patoisPlugin") {
@@ -36,11 +28,5 @@ gradlePlugin {
             displayName = "Patois i18n Code Generator"
             description = "Gradle plugin for generating type-safe Kotlin translations from files"
         }
-    }
-}
-
-afterEvaluate {
-    publishing.publications.withType<MavenPublication>().configureEach {
-        artifact(tasks.named("javadocJar"))
     }
 }
