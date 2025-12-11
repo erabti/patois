@@ -55,6 +55,9 @@ class PatoisPlugin : Plugin<Project> {
             it.className.set(extension.className)
             it.packageName.set(extension.packageName)
             it.inputDir.set(extension.inputDir)
+            it.inputFiles.from(extension.inputDir.map { dir ->
+                dir.asFileTree.matching { pattern -> pattern.include("*.yaml", "*.yml") }
+            })
             it.outputDir.set(extension.outputDir)
             it.argumentPattern.set(extension.argumentPattern)
             it.baseLocale.set(extension.baseLocale)
