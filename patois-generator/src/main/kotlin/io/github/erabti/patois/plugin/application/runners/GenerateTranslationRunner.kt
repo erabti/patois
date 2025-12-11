@@ -20,7 +20,7 @@ class GenerateTranslationRunner(
         val yamlFiles = discoverTranslationFiles()
 
         if (yamlFiles.isEmpty()) {
-            throw IllegalStateException("No translation files found in ${config.inputDir}")
+            return
         }
 
         val translations = yamlFiles.map { file ->
