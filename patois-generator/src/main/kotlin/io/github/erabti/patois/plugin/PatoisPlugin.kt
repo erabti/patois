@@ -51,6 +51,16 @@ class PatoisPlugin : Plugin<Project> {
         val generateTask = project.tasks.register("generateTranslations", GenerateTranslationsTask::class.java) {
             it.group = "patois"
             it.description = "Generates translation files"
+
+            it.className.set(extension.className)
+            it.packageName.set(extension.packageName)
+            it.inputDir.set(extension.inputDir)
+            it.outputDir.set(extension.outputDir)
+            it.argumentPattern.set(extension.argumentPattern)
+            it.baseLocale.set(extension.baseLocale)
+            it.enumName.set(extension.enumName)
+            it.resolverName.set(extension.resolverName)
+            it.hasKtorExtension.set(extension.hasKtorExtension)
         }
 
         project.tasks.named("compileKotlin").configure {
