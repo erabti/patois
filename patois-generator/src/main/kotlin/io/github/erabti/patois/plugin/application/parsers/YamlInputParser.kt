@@ -40,6 +40,10 @@ class YamlInputParser(
                     parseYamlNode(index.toString(), item)
                 })
 
+            is YamlNull -> throw IllegalArgumentException(
+                "'${node.path.toHumanReadableString()}' has no value. Give it a text, or remove the key."
+            )
+
             else -> throw IllegalArgumentException("Unsupported YAML node type: ${node::class}")
         }
     }

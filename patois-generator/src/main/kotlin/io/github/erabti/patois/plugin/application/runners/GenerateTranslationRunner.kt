@@ -30,7 +30,7 @@ class GenerateTranslationRunner(
             } catch (e: Exception) {
                 throw IllegalStateException("Failed to read translation file: ${file.absolutePath}", e)
             }
-            val nodes = yamlReader.read(content)
+            val nodes = yamlReader.readFile(file, content)
             LocaleTranslation(locale, file.name, nodes)
         }
 
