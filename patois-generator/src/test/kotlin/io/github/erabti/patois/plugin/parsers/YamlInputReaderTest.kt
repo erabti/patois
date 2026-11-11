@@ -470,7 +470,7 @@ class YamlInputReaderTest : FunSpec({
             node.arguments shouldBe emptyList()
         }
 
-        test("should handle duplicate argument names") {
+        test("should extract a repeated argument once") {
             val yaml = """
                 repeated: "Hello {name}, goodbye {name}"
             """.trimIndent()
@@ -478,11 +478,21 @@ class YamlInputReaderTest : FunSpec({
             val nodes = reader.read(yaml)
             val node = nodes[0].shouldBeInstanceOf<TranslationNode.LeafNode>()
 
-            node.arguments.size shouldBe 2
+            node.arguments.size shouldBe 1
             node.arguments[0].name shouldBe "name"
             node.arguments[0].index shouldBe 0
-            node.arguments[1].name shouldBe "name"
-            node.arguments[1].index shouldBe 1
+        }
+
+        test("should keep the order of first use when an argument repeats") {
+            val yaml = """
+                repeated: "{first} {second} {first} {third}"
+            """.trimIndent()
+
+            val nodes = reader.read(yaml)
+            val node = nodes[0].shouldBeInstanceOf<TranslationNode.LeafNode>()
+
+            node.arguments.map { it.name } shouldBe listOf("first", "second", "third")
+            node.arguments.map { it.index } shouldBe listOf(0, 1, 2)
         }
 
         test("should extract arguments from nested structures") {

@@ -16,9 +16,11 @@ class TemplateArgumentExtractor(
     private fun extractCurlyBraces(template: String): List<TemplateArgument> {
         val regex = Regex("""\{(\w+)\}""")
         return regex.findAll(template)
-            .mapIndexed { index, match ->
+            .map { match -> match.groupValues[1] }
+            .distinct()
+            .mapIndexed { index, name ->
                 TemplateArgument(
-                    name = match.groupValues[1],
+                    name = name,
                     index = index
                 )
             }
@@ -31,8 +33,8 @@ class TemplateArgumentExtractor(
 
         return matches.mapIndexed { index, match ->
             val position = match.groupValues[2].toIntOrNull() ?: (index + 1)
-            val name = "arg$position"
-
+            "arg$position"
+        }.distinct().mapIndexed { index, name ->
             TemplateArgument(
                 name = name,
                 index = index
