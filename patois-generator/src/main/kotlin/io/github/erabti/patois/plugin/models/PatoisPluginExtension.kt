@@ -41,6 +41,6 @@ abstract class PatoisPluginExtension {
     /** Name of the generated resolver class. Default: "AppStringsResolver" */
     abstract val resolverName: Property<String>
 
-    /** Internal: Whether patois-extension-ktor is present in dependencies. */
+    /** Whether to generate the Ktor `strings` extensions. Default: true when patois-extension-ktor is on the compile classpath. */
     abstract val hasKtorExtension: Property<Boolean>
 }

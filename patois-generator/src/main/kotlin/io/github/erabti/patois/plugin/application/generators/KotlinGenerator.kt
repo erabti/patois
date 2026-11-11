@@ -45,8 +45,11 @@ internal class KotlinGenerator(
             addBaseTranslationClass()
             addLocalesEnum()
             addResolverClassObject()
-            addKtorStringsExtension()
-            addKtorStringsExtension(ClassName("io.ktor.server.routing", "RoutingContext"))
+            if (context.config.hasKtorExtension) {
+                addKtorStringsExtension()
+                addKtorStringsExtension(ClassName("io.ktor.server.routing", "RoutingContext"))
+            }
+            this
         }
     }
 

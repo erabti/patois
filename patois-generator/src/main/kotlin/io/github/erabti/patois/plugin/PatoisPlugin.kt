@@ -9,7 +9,10 @@ import io.github.erabti.patois.plugin.utils.Constants
 import io.github.erabti.patois.plugin.utils.PackageDetector
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.ProjectDependency
+import org.gradle.api.artifacts.component.ComponentIdentifier
+import org.gradle.api.artifacts.result.ResolvedComponentResult
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSetContainer
 
 /**
@@ -42,10 +45,6 @@ class PatoisPlugin : Plugin<Project> {
         project.afterEvaluate {
             val outputDir = extension.outputDir.asFile.get()
             project.extensions.getByType(SourceSetContainer::class.java).getByName("main").java.srcDir(outputDir)
-
-            val hasKtorExtension = hasPatoisKtorExtension(project)
-            extension.hasKtorExtension.set(hasKtorExtension)
-            project.extensions.extraProperties.set("patoisHasKtorExtension", hasKtorExtension)
         }
 
         val generateTask = project.tasks.register("generateTranslations", GenerateTranslationsTask::class.java) {
@@ -85,17 +84,25 @@ class PatoisPlugin : Plugin<Project> {
         extension.packageName.convention(detectedPackage)
         extension.enumName.convention(Constants.DEFAULT_ENUM_NAME)
         extension.resolverName.convention(Constants.DEFAULT_RESOLVER_NAME)
-        extension.hasKtorExtension.convention(false)
+        extension.hasKtorExtension.convention(hasPatoisKtorExtension(project))
     }
 
-    private fun hasPatoisKtorExtension(project: Project): Boolean {
-        return project.configurations.asSequence().any { configuration ->
-            configuration.dependencies.any { dependency ->
-                when (dependency) {
-                    is ProjectDependency -> dependency.name == "patois-extension-ktor"
-                    else -> dependency.group == "io.github.erabti.patois" && dependency.name == "patois-extension-ktor"
-                }
-            }
+    private fun hasPatoisKtorExtension(project: Project): Provider<Boolean> {
+        return project.configurations.named("compileClasspath").flatMap { classpath ->
+            classpath.incoming.resolutionResult.rootComponent.map { root -> root.dependsOnKtorExtension() }
         }
+    }
+
+    private fun ResolvedComponentResult.dependsOnKtorExtension(): Boolean {
+        val seen = mutableSetOf<ComponentIdentifier>()
+        val queue = ArrayDeque(listOf(this))
+        while (queue.isNotEmpty()) {
+            val component = queue.removeFirst()
+            if (!seen.add(component.id)) continue
+            val module = component.moduleVersion
+            if (module?.group == "io.github.erabti.patois" && module.name == "patois-extension-ktor") return true
+            component.dependencies.filterIsInstance<ResolvedDependencyResult>().forEach { queue.add(it.selected) }
+        }
+        return false
     }
 }
