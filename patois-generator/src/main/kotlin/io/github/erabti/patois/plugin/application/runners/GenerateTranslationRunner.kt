@@ -60,10 +60,12 @@ class GenerateTranslationRunner(
     }
 
 
-    private fun discoverTranslationFiles(): Array<File> {
-        return config.inputDirFile.listFiles { file ->
+    private fun discoverTranslationFiles(): List<File> {
+        val files = config.inputDirFile.listFiles { file ->
             file.isFile && file.extension in listOf("yaml", "yml")
         } ?: emptyArray()
+
+        return files.sortedBy { it.name }
     }
 
 
