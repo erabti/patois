@@ -38,7 +38,7 @@ class GenerateTranslationRunner(
 
         val context = RunnerContext(
             config = config,
-            translations = translations,
+            translations = translations.map { it.withArgumentOrderOf(baseTranslation) },
             baseTranslation = baseTranslation,
         )
 
