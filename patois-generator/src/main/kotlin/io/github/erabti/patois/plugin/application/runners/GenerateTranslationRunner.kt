@@ -46,6 +46,7 @@ class GenerateTranslationRunner(
 
         kotlinGen.generateBaseFile()
         kotlinGen.generateConcreteFiles()
+        removeStaleLocaleFiles(config, translations)
 
         logger("Generated translations for ${translations.size} locales: ${translations.map { it.locale.pascalCaseTag }}")
     }
